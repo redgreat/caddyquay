@@ -1,0 +1,26 @@
+name: Sync Caddy Image to Quay
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log in to Quay.io
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_PASSWORD }}
+
+      - name: Pull latest caddy from Docker Hub
+        run: docker pull caddy:latest
+
+      - name: Tag for Quay
+        run: docker tag caddy:latest quay.io/zrcrm/caddy:latest
+
+      - name: Push to Quay
+        run: docker push quay.io/zrcrm/caddy:latest
